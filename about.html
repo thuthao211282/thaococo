@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Performance | Ez10</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+  background-size: cover;
+  color: #222;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
+}
+.container {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  padding: 40px;
+  width: 90%;
+  max-width: 950px;
+  margin: 50px auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.6s ease;
+}
+h1 {
+  font-size: 34px;
+  margin-bottom: 10px;
+  color: #007bff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.8);
+}
+.subtitle {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 25px;
+}
+button {
+  background: linear-gradient(135deg, #007bff, #4facfe);
+  border: none;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+}
+.stats-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease;
+}
+.stats-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.stats-header img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+}
+.stats-header h3 {
+  margin: 0;
+  color: #007bff;
+}
+.delete-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s;
+}
+.delete-btn:hover { background: #b02a37; }
+.progress-bar {
+  width: 100%;
+  background: #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 10px;
+  margin: 8px 0;
+}
+.progress-fill {
+  height: 10px;
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  transition: width 0.4s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+#statsList {
+  margin-top: 20px;
+}
+.footer-note {
+  margin-top: 25px;
+  font-size: 13px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1><i class="fa-solid fa-chart-line"></i> Thành tích học sinh</h1>
+  <p class="subtitle">Kiểm tra kết quả của từng học sinh</p>
+  <button onclick="window.location.href='main.html'"><i class="fa-solid fa-house"></i> Về trang chủ</button>
+
+  <div id="statsList">
+    <p>Tải dữ liêu ...</p>
+  </div>
+
+  <p class="footer-note"><i class="fa-solid fa-lightbulb"></i> Tip: Tải lại trang để kiểm tra.</p>
+</div>
+
+<script>
+// Ensure user is logged in
+const currentUser = localStorage.getItem('loggedInUser');
+if(!currentUser){
+  alert('You must log in first!');
+  window.location.href = 'login.html';
+}
+
+// Random avatar for each submission
+function randomAvatar(){
+  const avatars = [
+    'https://cdn-icons-png.flaticon.com/512/219/219983.png',
+    'https://cdn-icons-png.flaticon.com/512/4140/4140048.png',
+    'https://cdn-icons-png.flaticon.com/512/4140/4140037.png',
+    'https://cdn-icons-png.flaticon.com/512/4140/4140051.png',
+    'https://cdn-icons-png.flaticon.com/512/1154/1154471.png'
+  ];
+  return avatars[Math.floor(Math.random()*avatars.length)];
+}
+
+// Load all student stats from localStorage
+function loadAllStats(){
+  const listDiv = document.getElementById('statsList');
+  listDiv.innerHTML = '';
+
+  const allStats = JSON.parse(localStorage.getItem('studentStats')||'{}');
+  if(Object.keys(allStats).length===0){
+    listDiv.innerHTML = '<p>Chưa có dữ liệu</p>';
+    return;
+  }
+
+  // Group by kit code
+  const kits = {};
+  for(const username in allStats){
+    const userStats = allStats[username];
+    userStats.forEach(stat=>{
+      if(!kits[stat.kitCode]) kits[stat.kitCode] = [];
+      kits[stat.kitCode].push({...stat, username});
+    });
+  }
+
+  // Render each kit
+  for(const kitCode in kits){
+    const kitCard = document.createElement('div');
+    kitCard.className = 'stats-card';
+    kitCard.innerHTML = `
+      <div class="stats-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/1090/1090800.png" alt="kit">
+        <h3><i class="fa-solid fa-folder-open"></i> Kit: ${kitCode}</h3>
+      </div>
+      <button class="delete-btn" onclick="deleteKit('${kitCode}')"><i class="fa-solid fa-trash"></i> Xóa</button>
+      <div style="margin-top:10px;"><strong>Bài làm:</strong></div>
+    `;
+    kits[kitCode].forEach((s,i)=>{
+      const percentage = ((s.correct/s.total)*100).toFixed(1);
+      const date = new Date(s.date).toLocaleString();
+      const avatar = randomAvatar();
+      const progressColor = percentage>80 ? '#00c851' : percentage>60 ? '#ffbb33' : '#ff4444';
+
+      const submissionDiv = document.createElement('div');
+      submissionDiv.style.margin = '12px 0';
+      submissionDiv.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="${avatar}" alt="avatar" width="35" height="35" style="border-radius:50%;border:2px solid ${progressColor}">
+          <div style="flex:1;">
+            <strong>${i+1}. ${s.username}</strong><br>
+            <small>${date}</small><br>
+            <div class="progress-bar"><div class="progress-fill" style="width:${percentage}%;background:${progressColor}"></div></div>
+            <small>Score: ${s.score} | Correct: ${s.correct}/${s.total} (${percentage}%)</small>
+          </div>
+        </div>
+      `;
+      kitCard.appendChild(submissionDiv);
+    });
+
+    listDiv.appendChild(kitCard);
+  }
+}
+
+// Delete all submissions for a kit
+function deleteKit(kitCode){
+  if(!confirm(`Bạn có chắc muốn xóa ${kitCode}?`)) return;
+
+  const allStats = JSON.parse(localStorage.getItem('studentStats')||'{}');
+
+  for(const user in allStats){
+    allStats[user] = allStats[user].filter(stat=>stat.kitCode!==kitCode);
+    if(allStats[user].length===0) delete allStats[user];
+  }
+
+  localStorage.setItem('studentStats', JSON.stringify(allStats));
+  alert(`Xóa ${kitCode} thành công.`);
+  loadAllStats();
+}
+
+loadAllStats();
+</script>
+
+</body>
+</html>

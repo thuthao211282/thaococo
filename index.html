@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up | thaococo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+    overflow: hidden;
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 50, 0.35);
+    z-index: -1;
+}
+.container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Even spacing */
+}
+header {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4dabf7;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+input, button {
+    width: 100%; /* Make inputs and buttons the same width */
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+input {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    text-align: center;
+}
+input::placeholder {
+    color: #e0f0ff;
+}
+input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 0 12px rgba(77,171,247,0.7);
+}
+button {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(135deg, #4dabf7, #1c7ed6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,123,255,0.6);
+}
+button.secondary {
+    background: rgba(255,255,255,0.2);
+    color: #4dabf7;
+}
+button.secondary:hover {
+    background: rgba(255,255,255,0.35);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header><i class="fa-solid fa-user-plus"></i> Tạo tài khoản</header>
+
+    <input id="username" type="text" placeholder="Nhập tên người dùng">
+    <input id="password" type="password" placeholder="Nhập mật khẩu">
+
+    <button onclick="signupUser()"><i class="fa-solid fa-check"></i> Tiếp tục</button>
+    <button class="secondary" onclick="window.location.href='login.html'"><i class="fa-solid fa-arrow-left"></i> Đăng nhập</button>
+</div>
+
+<script>
+function signupUser() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+        alert("Hoàn thành tất cả chỗ trống!");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+
+    if (users[username]) {
+        alert("Username already exists! Try a different one.");
+        return;
+    }
+
+    users[username] = { password };
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("loggedInUser", username);
+
+    alert("✅ Tạo Tài Khoản thành công, chào mừng tới trang chủ...");
+    window.location.href = "main.html";
+}
+</script>
+
+</body>
+</html>

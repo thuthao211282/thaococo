@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Page | Ez10</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+:root {
+  --primary: #4dabf7;
+  --danger: #dc3545;
+  --kit-bg: #f0f0f0;
+  --kit-hover-bg: #e6e6e6;
+  --card-shadow: 0 12px 35px rgba(0,0,0,0.25);
+  --outline-color: #000;
+}
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fc;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+body::before {
+  content: "";
+  position: fixed; inset:0;
+  background: url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+  filter: blur(5px) brightness(0.55);
+  z-index: -1;
+}
+.container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 30px 40px;
+  border-radius: 20px;
+  background: rgba(230,230,230,0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.15);
+  width: 90%;
+  animation: fadeIn 0.6s ease;
+}
+header {
+  background-color: var(--primary);
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 15px;
+}
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-top: 30px;
+}
+.dashboard button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.2s, box-shadow 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(77,171,247,0.5);
+}
+.dashboard button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(77,171,247,0.7);
+}
+.logout-btn {
+  margin: 40px auto 0 auto;
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  box-shadow: 0 4px 15px rgba(220,75,69,0.5);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+.logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(220,75,69,0.7);
+}
+.kits { margin-top: 40px; }
+.kit-row {
+  display:flex; justify-content:space-between; align-items:center;
+  background: var(--kit-bg); border-radius:12px; padding:12px 16px;
+  margin-bottom:12px; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border:none; transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+.kit-row:hover { box-shadow:0 12px 30px rgba(0,0,0,0.18); background: var(--kit-hover-bg);}
+.kit-row .kit-title { font-weight:600; }
+.kit-row button { background: var(--primary); color:#fff; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:14px; margin-left:8px; }
+#kitSettingsModal {
+  display:none; position:fixed; inset:0;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+  justify-content:center; align-items:center; z-index:999; animation:fadeIn 0.3s ease;
+}
+.modal-content {
+  background: rgba(255,255,255,0.95); border-radius:20px;
+  padding:24px 30px; width:90%; max-width:460px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.3); border:3px dashed var(--outline-color);
+  animation: slideUp 0.4s ease;
+}
+.modal-content h3 { color: var(--primary); margin-bottom:16px; text-align:center; }
+.modal-content label { font-weight:600; display:block; margin-top:12px; }
+.modal-content input, .modal-content select {
+  width:100%; border:none; border-radius:12px; padding:10px; margin-top:6px;
+  font-size:15px; background: rgba(255,255,255,0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.modal-buttons { margin-top:20px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px;}
+.modal-buttons button {
+  flex:1; background: linear-gradient(135deg, #4dabf7, #1c7ed6);
+  border:none; color:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
+  transition: transform 0.2s ease;
+}
+.modal-buttons button:hover { transform: scale(1.05); }
+button.cancel { background:#999; }
+#kitCode { margin-top:14px; text-align:center; font-weight:bold; color:var(--primary);}
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+@keyframes slideUp { from{transform:translateY(30px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+</style>
+</head>
+<body>
+<header>Welcome to Ez10</header>
+<div class="container">
+<h2>Xin chào, <span id="displayUsername"></span> 👋</h2>
+<p>Chọn 1 mục để tiếp tục:</p>
+<div class="dashboard">
+  <button onclick="goTo('about')"><i class="fa-solid fa-chart-line"></i> Thành tích học sinh</button>
+  <button onclick="goTo('assignments')"><i class="fa-solid fa-clipboard-list"></i> Tạo bộ câu hỏi</button>
+  <button onclick="goTo('Game')"><i class="fa-solid fa-gamepad"></i> Trò chơi cho học sinh</button>
+  <button onclick="goTo('profile')"><i class="fa-solid fa-user"></i> Tài khoản</button>
+</div>
+
+<div class="kits">
+  <h3>Bộ câu hỏi của tôi</h3>
+  <div id="myKits">Chưa có bộ câu hỏi nào.</div>
+</div>
+
+<button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+</div>
+
+<!-- Kit Settings Modal -->
+<div id="kitSettingsModal">
+<div class="modal-content">
+  <h3><i class="fa-solid fa-gear"></i> Kit Settings</h3>
+  <label>Trạng thái:</label>
+  <select id="assignSelect">
+    <option value="Không Giao">Unassigned</option>
+    <option value="Giao nhiệm vụ">Assigned</option>
+  </select>
+  <label>Số tiền học sinh cần đạt:</label>
+  <input type="number" id="kitTargetMoney" min="0" value="1000">
+  <div class="modal-buttons">
+    <button onclick="flashcardMode()"><i class="fa-solid fa-clone"></i> Ôn Flashcard </button>
+    <button onclick="saveKitSettings()"><i class="fa-solid fa-check"></i> Lưu và tạo code</button>
+    <button class="cancel" onclick="closeKitSettings()"><i class="fa-solid fa-xmark"></i> Đóng</button>
+  </div>
+  <div id="kitCode"></div>
+</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'userKits_v5';
+const STORAGE_USER = 'loggedInUser';
+let currentUser = null;
+let currentKitId = null;
+
+function ensureUser(){
+  currentUser = localStorage.getItem(STORAGE_USER);
+  if(!currentUser){ alert("You must log in first!"); window.location.href="login.html"; return; }
+  document.getElementById("displayUsername").textContent = currentUser;
+}
+ensureUser();
+
+function goTo(page){ window.location.href = page + ".html"; }
+function logout(){ localStorage.removeItem(STORAGE_USER); window.location.href="login.html"; }
+
+function loadMyKits(){
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  const kits = all[currentUser] || [];
+  const out = document.getElementById('myKits');
+  out.innerHTML='';
+  if(!kits.length){ out.textContent='No kits yet.'; return; }
+
+  kits.slice().reverse().forEach(k=>{
+    const row = document.createElement('div');
+    row.className='kit-row';
+    row.innerHTML=`
+      <div class="kit-title">${k.title || 'Untitled Kit'} (${(k.questions||[]).length} questions)</div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="editKit('${k.kitId}')"><i class='fa-solid fa-pen'></i> Sửa</button>
+        <button onclick="openKitSettings('${k.kitId}')"><i class='fa-solid fa-gear'></i> Cài đặt</button>
+        <button onclick="flashcardMode('${k.kitId}')"><i class='fa-solid fa-clone'></i> Flashcard</button>
+        <button onclick="deleteKit('${k.kitId}')"><i class='fa-solid fa-trash'></i> Xóa</button>
+      </div>
+    `;
+    out.appendChild(row);
+  });
+}
+
+function editKit(kitId){
+  localStorage.setItem('editKitId', kitId);
+  goTo('assignments');
+}
+
+function deleteKit(kitId){
+  if(!confirm('Xóa bộ câu hỏi này vĩnh viễn?')) return;
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  all[currentUser] = (all[currentUser]||[]).filter(k=>k.kitId!==kitId);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  loadMyKits();
+}
+
+// Modal functions
+function openKitSettings(kitId){
+  currentKitId = kitId;
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  const kit = (all[currentUser]||[]).find(k=>k.kitId===kitId);
+  if(!kit) return;
+  document.getElementById('assignSelect').value = kit.assigned || 'unassigned';
+  document.getElementById('kitTargetMoney').value = kit.targetMoney || 1000;
+  document.getElementById('kitCode').textContent = kit.assignedCode || '';
+  document.getElementById('kitSettingsModal').style.display='flex';
+}
+function closeKitSettings(){ document.getElementById('kitSettingsModal').style.display='none'; }
+
+function saveKitSettings(){
+  if(!currentKitId) return;
+  const all = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  const kit = (all[currentUser]||[]).find(k=>k.kitId===currentKitId);
+  if(!kit) return;
+  kit.assigned = document.getElementById('assignSelect').value;
+  kit.targetMoney = parseInt(document.getElementById('kitTargetMoney').value) || 0;
+  kit.assignedCode = 'K' + Math.floor(Math.random()*10000);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  closeKitSettings();
+  loadMyKits();
+  alert('Lưu thành công!');
+}
+
+function flashcardMode(kitId){
+  if(kitId) localStorage.setItem('reviewKitId', kitId);
+  else if(currentKitId) localStorage.setItem('reviewKitId', currentKitId);
+  else { alert('No kit selected'); return; }
+  window.location.href='review.html';
+}
+
+loadMyKits();
+</script>
+</body>
+</html>

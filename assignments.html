@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Kit | thaococo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.4/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+
+<style>
+:root {
+  --primary: #4dabf7;
+  --secondary: #1c7ed6;
+  --danger: #ff4b5c;
+  --light-bg: rgba(255,255,255,0.95);
+  --outline-color: #000;
+  --kit-bg: #f0f0f0;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Poppins',sans-serif;
+  background: url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+  min-height:100vh;
+}
+.container { max-width:1200px; margin:50px auto; padding:30px 40px; border-radius:20px; background: var(--light-bg); backdrop-filter: blur(8px); box-shadow: 0 12px 35px rgba(0,0,0,0.25);}
+header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:25px;}
+header h1 { font-size:28px; font-weight:700; display:flex; align-items:center; gap:8px;}
+header .small { font-size:14px; opacity:0.85;}
+button { cursor:pointer; border:none; border-radius:12px; font-weight:600; padding:10px 16px; display:flex; align-items:center; gap:8px; color:#fff; background:linear-gradient(135deg,var(--primary),var(--secondary)); transition:all 0.2s ease; }
+button:hover { transform:scale(1.05);}
+button.warn { background:var(--danger);}
+button.ghost { background: var(--primary);}
+.flex { display:flex; flex-wrap:wrap; gap:30px;}
+.left, .right { flex:1; min-width:360px;}
+.card, #manualInput { background: #fff; border-radius:16px; padding:24px; margin-bottom:24px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); border: 3px dashed var(--outline-color); transition: box-shadow 0.2s ease, border 0.2s ease;}
+.kit-row { display:flex; justify-content:space-between; align-items:center; background: var(--kit-bg); border-radius:12px; padding:12px 16px; margin-bottom:12px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); border: none; transition: box-shadow 0.2s ease, background 0.2s ease;}
+.kit-row:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.18); background: #e6e6e6;}
+input, select, textarea { width:100%; border:none; border-radius:12px; padding:12px; margin-top:8px; font-size:16px; background:#f5f5f5; color:#000; }
+textarea { min-height:100px; resize:vertical; }
+.choice-pill { display:inline-block; padding:6px 14px; border-radius:999px; font-weight:bold; font-size:15px; margin-bottom:6px; }
+.choice-A { background:#ff4b5c;color:#fff; } .choice-B { background:#4dabf7;color:#fff; }
+.choice-C { background:#37d67a;color:#fff; } .choice-D { background:#f9ca24;color:#111; }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div>
+    <h1><i class="fa-solid fa-pen-to-square"></i> Create Kit</h1>
+    <div class="small">Logged in as <strong id="currentUserDisplay"></strong></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button onclick="goDashboard()"><i class="fa-solid fa-house"></i> Trang chủ</button>
+    <button onclick="reloadPage()"><i class="fa-solid fa-rotate-right"></i> Tải lại</button>
+    <button onclick="saveKit()"><i class="fa-solid fa-save"></i> Lưu</button>
+    <button class="ghost" onclick="$('importFile').click()"><i class="fa-solid fa-file-import"></i> Tải từ word</button>
+    <input type="file" id="importFile" style="display:none" accept=".docx">
+  </div>
+</header>
+
+<div class="flex">
+<section class="left">
+  <div class="card">
+    <label for="kitTitle">Tên bộ câu hỏi</label>
+    <input id="kitTitle" placeholder="Điền tên bộ câu hỏi...">
+    <div style="margin-top:10px;">
+      <button class="ghost" onclick="toggleManualInput()"><i class="fa-solid fa-hand"></i> Làm câu hỏi thủ công</button>
+      <div id="manualInput" style="display:none;">
+        <textarea id="manualQuestion" placeholder="Question text..."></textarea>
+        <input id="choiceA" placeholder="Câu A">
+        <input id="choiceB" placeholder="Câu B">
+        <input id="choiceC" placeholder="Câu C">
+        <input id="choiceD" placeholder="Câu D">
+        <select id="correctAnswer">
+          <option value="">Chọn câu trả lười đúng</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button onclick="addManualQuestion()"><i class="fa-solid fa-plus"></i> Thêm câu hỏi</button>
+          <button class="ghost" onclick="clearManual()">Xoa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3><i class="fa-solid fa-eye"></i> Preview câu hỏi</h3>
+    <div id="questions" class="small">Chưa có câu hỏi.</div>
+  </div>
+</section>
+
+<section class="right">
+  <div class="card">
+    <h3><i class="fa-solid fa-list"></i> Bộ câu hỏi của tôi</h3>
+    <div id="assignedKits" class="small">Chưa có bộ nào.</div>
+  </div>
+</section>
+</div>
+
+<script>
+const STORAGE_KEY = 'userKits_v5';
+const STORAGE_USER = 'loggedInUser';
+let currentUser = null;
+let workingQuestions = [];
+let editingIndex = null;
+let editingKitId = null;
+
+function $(id){ return document.getElementById(id); }
+
+function ensureUser(){
+  currentUser = localStorage.getItem(STORAGE_USER);
+  if(!currentUser){
+    alert('Bạn phải đăng nhập trươc!');
+    window.location.href='login.html';
+    return;
+  }
+  $('currentUserDisplay').textContent = currentUser;
+}
+ensureUser();
+
+// Toggle manual input
+function toggleManualInput(){ $('manualInput').style.display = $('manualInput').style.display==='none'?'block':'none'; }
+
+// Clear manual form
+function clearManual(){ 
+  ['manualQuestion','choiceA','choiceB','choiceC','choiceD'].forEach(id=>$(id).value='');
+  $('correctAnswer').value='';
+  editingIndex = null;
+}
+
+// Add manual question
+function addManualQuestion(){
+  const q = $('manualQuestion').value.trim();
+  const a = $('choiceA').value.trim();
+  const b = $('choiceB').value.trim();
+  const c = $('choiceC').value.trim();
+  const d = $('choiceD').value.trim();
+  const correct = $('correctAnswer').value;
+
+  if(!q||!a||!b||!c||!d||!correct){ alert('Fill all fields'); return; }
+
+  const correctIndex = ['A','B','C','D'].indexOf(correct);
+  const item = { question:q, choices:[a,b,c,d], correctIndex };
+
+  if(editingIndex!==null){
+    workingQuestions[editingIndex]=item;
+    editingIndex=null;
+  } else workingQuestions.push(item);
+
+  clearManual();
+  renderQuestions();
+}
+
+// Render questions preview
+function renderQuestions(){
+  const c = $('questions');
+  c.innerHTML = '';
+  if(!workingQuestions.length){ c.textContent='No questions yet.'; return; }
+
+  workingQuestions.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.className='card';
+    const correctLetter=['A','B','C','D'][q.correctIndex];
+    const correctClass=q.correctIndex===0?'choice-A':q.correctIndex===1?'choice-B':q.correctIndex===2?'choice-C':'choice-D';
+
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="max-width:78%">
+          <div style="font-weight:800">Q${i+1}. ${q.question}</div>
+          <div style="margin-top:8px">
+            <div><span class="choice-pill choice-A">A</span> ${q.choices[0]}</div>
+            <div><span class="choice-pill choice-B">B</span> ${q.choices[1]}</div>
+            <div><span class="choice-pill choice-C">C</span> ${q.choices[2]}</div>
+            <div><span class="choice-pill choice-D">D</span> ${q.choices[3]}</div>
+          </div>
+          <div style="margin-top:8px;font-size:13px"><strong>Answer:</strong> <span class="${correctClass} small">${correctLetter}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="ghost" onclick="editQuestion(${i})"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="warn" onclick="deleteQuestion(${i})"><i class="fa-solid fa-trash"></i> Delete</button>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+
+// Edit question
+function editQuestion(i){
+  const q = workingQuestions[i];
+  ['manualQuestion','choiceA','choiceB','choiceC','choiceD'].forEach((id,idx)=>$(id).value=idx===0?q.question:q.choices[idx-1]);
+  $('correctAnswer').value=['A','B','C','D'][q.correctIndex];
+  editingIndex = i;
+  $('manualInput').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Delete question
+function deleteQuestion(i){
+  if(confirm('Delete question?')){
+    workingQuestions.splice(i,1);
+    renderQuestions();
+  }
+}
+
+// Storage helpers
+function loadAll(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }
+function saveAll(o){ localStorage.setItem(STORAGE_KEY,JSON.stringify(o)); }
+
+// Save kit
+function saveKit(){
+  if(!workingQuestions.length){ alert('Add questions first'); return; }
+  const title = $('kitTitle').value.trim() || 'Untitled Kit';
+  const all = loadAll();
+  if(!all[currentUser]) all[currentUser]=[];
+
+  const newKit = {
+    kitId: Date.now().toString(),
+    title,
+    questions: JSON.parse(JSON.stringify(workingQuestions)),
+    createdAt: new Date().toISOString()
+  };
+
+  all[currentUser].push(newKit);
+  saveAll(all);
+
+  workingQuestions=[];
+  $('kitTitle').value='';
+  renderQuestions();
+  loadAssignedKits();
+
+  alert('Lưu thành công!');
+}
+
+// Load assigned kits
+function loadAssignedKits(){
+  const out = $('assignedKits');
+  out.innerHTML='';
+  const all = loadAll();
+  const kits = all[currentUser] || [];
+  if(!kits.length){ out.textContent='No kits yet.'; return; }
+
+  kits.slice().reverse().forEach(k=>{
+    const row = document.createElement('div');
+    row.className='kit-row';
+    row.innerHTML=`
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="width:44px;height:44px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800">
+          ${k.title[0].toUpperCase()}
+        </div>
+        <div>
+          <div style="font-weight:800">${k.title}</div>
+          <div class="small">${k.questions.length} question(s)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="ghost" onclick="loadKitToEditor('${k.kitId}')"><i class="fa-solid fa-pen"></i> Sửa</button>
+        <button class="ghost" onclick="exportKit('${k.kitId}')"><i class="fa-solid fa-file-word"></i> Download</button>
+        <button class="warn" onclick="deleteKit('${k.kitId}')"><i class="fa-solid fa-trash"></i> Xóa</button>
+      </div>`;
+    out.appendChild(row);
+  });
+}
+
+// Load kit to editor
+function loadKitToEditor(id){
+  const all = loadAll();
+  const kit = (all[currentUser]||[]).find(k=>k.kitId===id);
+  if(!kit){ alert('không tìm thấy bộ câu hỏi'); return; }
+
+  $('kitTitle').value = kit.title;
+  workingQuestions = JSON.parse(JSON.stringify(kit.questions));
+  renderQuestions();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Delete kit
+function deleteKit(id){
+  if(confirm('Delete kit?')){
+    const all = loadAll();
+    all[currentUser] = all[currentUser].filter(k=>k.kitId!==id);
+    saveAll(all);
+    loadAssignedKits();
+  }
+}
+
+// Export kit
+async function exportKit(id){
+  try{
+    const all = loadAll();
+    const kit = (all[currentUser]||[]).find(k=>k.kitId===id);
+    if(!kit){ alert('Kit not found'); return; }
+    if(!kit.questions.length){ alert('Không có câu hỏi'); return; }
+
+    const { Document, Packer, Paragraph, TextRun } = window.docx;
+
+    const children = [
+      new Paragraph({ children:[ new TextRun({ text:`Kit Title: ${kit.title}`, bold:true, size:32 }) ] }),
+      new Paragraph({ text:'' })
+    ];
+
+    kit.questions.forEach((q,i)=>{
+      children.push(new Paragraph({ children:[ new TextRun({ text:`${i+1}. ${q.question}`, bold:true }) ] }));
+      ['A','B','C','D'].forEach((ch,idx)=>{
+        const isCorrect = idx===q.correctIndex;
+        children.push(new Paragraph({ children:[ new TextRun({ text:`${isCorrect?'* ':''}${ch}. ${q.choices[idx]}`, bold:isCorrect }) ] }));
+      });
+      children.push(new Paragraph({ text:'' }));
+    });
+
+    const doc = new Document({ sections:[{ children }] });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url;
+    a.download=`${kit.title || 'kit'}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert('Download thành công!');
+  } catch(err){
+    console.error(err);
+    alert('Lỗi vui lòng thử lại');
+  }
+}
+
+// Dashboard & reload
+function goDashboard(){ window.location.href='main.html'; }
+function reloadPage(){ location.reload(); }
+
+// ===== Robust Word Import =====
+$('importFile').addEventListener('change', async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  try{
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+
+    const lines = result.value.replace(/\r/g,'').replace(/\t/g,' ').split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    if(!lines.length){ alert('No questions found'); return; }
+
+    const newQuestions = [];
+    let qObj = null;
+
+    lines.forEach(line=>{
+      if(/^\d+\.\s/.test(line)){
+        if(qObj) newQuestions.push(qObj);
+        qObj = { question: line.replace(/^\d+\.\s/,''), choices:[], correctIndex:null };
+      } else if(/^\*?[A-D]\.\s/.test(line)){
+        const m=line.match(/^(\*?)\s*([A-D])\.\s*(.*)/);
+        if(m && qObj){
+          const [_,star,ch,text]=m;
+          qObj.choices.push(text.trim());
+          if(star==='*') qObj.correctIndex=['A','B','C','D'].indexOf(ch);
+        }
+      }
+    });
+    if(qObj) newQuestions.push(qObj);
+
+    if(!newQuestions.length){ alert('Không có câu hỏi đúng.'); return; }
+
+    // Append to current working questions
+    workingQuestions = workingQuestions.concat(newQuestions);
+    renderQuestions();
+
+    // Set title only if empty
+    if(!$('kitTitle').value.trim()) $('kitTitle').value = file.name.replace('.docx','');
+
+    alert(`Tải ${newQuestions.length} thành công!`);
+  } catch(err){
+    console.error(err);
+    alert('Lỗ vui lòng thử lại');
+  }
+});
+
+loadAssignedKits();
+</script>
+</div>
+</body>
+</html>

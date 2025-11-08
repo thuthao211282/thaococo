@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile | Ez10</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+/* General */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #e0f7ff, #f8f9fc);
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+header {
+  width: 100%;
+  background: linear-gradient(135deg, #4dabf7, #1c7ed6);
+  color: white;
+  text-align: center;
+  padding: 25px 0;
+  font-size: 26px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+/* Container Card */
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+/* Labels */
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+input:focus {
+  outline: none;
+  border-color: #4dabf7;
+  box-shadow: 0 0 8px rgba(77,171,247,0.5);
+  transform: scale(1.02);
+}
+
+/* Password container */
+.password-container {
+  position: relative;
+  width: 100%;
+}
+.password-container input {
+  padding-right: 45px; /* space for toggle button */
+}
+.password-container .toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #4dabf7;
+}
+
+/* Buttons */
+button.save, button.back {
+  width: 100%;
+  height: 48px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+button.save {
+  background: linear-gradient(135deg, #4dabf7, #1c7ed6);
+  color: white;
+}
+button.save:hover {
+  background: linear-gradient(135deg, #1c7ed6, #4dabf7);
+  transform: scale(1.03);
+}
+button.back {
+  background: linear-gradient(135deg, #4dabf7, #1c7ed6);
+  color: white;
+}
+button.back:hover {
+  background: linear-gradient(135deg, #1c7ed6, #4dabf7);
+  transform: scale(1.03);
+}
+</style>
+</head>
+<body>
+
+<header>👤 Tài khoản của tôi</header>
+
+<div class="container">
+  <label>Username:</label>
+  <input id="username" type="text" placeholder="Enter username">
+
+  <label>Password:</label>
+  <div class="password-container">
+    <input id="password" type="password" placeholder="Enter new password">
+    <button type="button" class="toggle-password" onclick="togglePassword()">
+      <i class="fa-solid fa-eye"></i>
+    </button>
+  </div>
+
+  <button class="save" onclick="saveProfile()">💾 Lưu</button>
+  <button class="back" onclick="window.location.href='main.html'">⬅Về trang chủ</button>
+</div>
+
+<script>
+let currentUser = localStorage.getItem("loggedInUser");
+if (!currentUser) {
+  alert("You must log in first!");
+  window.location.href = "login.html";
+}
+
+function loadProfile() {
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const userData = users[currentUser] || {};
+
+  document.getElementById("username").value = currentUser;
+  document.getElementById("password").value = userData.password || "";
+}
+loadProfile();
+
+function saveProfile() {
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+
+  const newUsername = document.getElementById("username").value.trim();
+  const newPassword = document.getElementById("password").value;
+
+  if (!newUsername || !newPassword) {
+    alert("Please fill all fields!");
+    return;
+  }
+
+  // If username changed and already exists
+  if (newUsername !== currentUser && users[newUsername]) {
+    alert("Đã có ngươi dùng chọn tên khác.");
+    return;
+  }
+
+  // Save data
+  users[newUsername] = { password: newPassword };
+
+  // Remove old username if changed
+  if (newUsername !== currentUser) delete users[currentUser];
+
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("loggedInUser", newUsername);
+  currentUser = newUsername;
+
+  alert("✅ Profile updated successfully!");
+}
+
+function togglePassword() {
+  const pwd = document.getElementById("password");
+  const icon = document.querySelector(".toggle-password i");
+  if (pwd.type === "password") {
+    pwd.type = "text";
+    icon.classList.replace("fa-eye", "fa-eye-slash");
+  } else {
+    pwd.type = "password";
+    icon.classList.replace("fa-eye-slash", "fa-eye");
+  }
+}
+</script>
+
+</body>
+</html>
