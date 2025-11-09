@@ -65,7 +65,7 @@ button:hover{ transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.5);}
 
 <div class="container" id="start-container" style="display:none;">
 <h3>Điền code và tên</h3>
-<input type="text" id="playerCode" placeholder="NHập Code">
+<input type="text" id="playerCode" placeholder="Nhập Code">
 <input type="text" id="playerName" placeholder="Nhập Tên">
 <button onclick="joinGame()"><i class="fa-solid fa-play"></i> Tham gia</button>
 </div>
@@ -74,12 +74,12 @@ button:hover{ transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.5);}
 <div id="board"></div>
 <div id="balance"><i class="fa-solid fa-wallet"></i> Số tiền hiện tại: $<span id="money">0</span></div>
 <div id="target"><i class="fa-solid fa-bullseye"></i> Mục tiêu: $<span id="targetMoney">50</span></div>
-<div id="market"><i class="fa-solid fa-chart-line"></i> Thị trường chứng khoáng: $<span id="marketPrice">10</span></div>
+<div id="market"><i class="fa-solid fa-chart-line"></i> Thị trường chứng khoán: $<span id="marketPrice">10</span></div>
 <div id="question-area"></div>
 <div class="answer-grid" id="answer-grid"></div>
 <button onclick="openShop()"><i class="fa-solid fa-store"></i> Shop</button>
 <div id="shop">
-<h3> Shop nâng cấp</h3>
+<h3>Shop nâng cấp</h3>
 <div id="upgrade-list"></div>
 <button onclick="closeShop()">Đóng Shop</button>
 </div>
@@ -89,7 +89,7 @@ button:hover{ transform:scale(1.05); box-shadow:0 5px 15px rgba(0,0,0,0.5);}
 <h3>🎉 Trò chơi kết thúc</h3>
 <p>Số tiền đã đạt chỉ định!</p>
 <p>Số tiền kiếm được: $<span id="finalMoney"></span></p>
-<p>CCâu trả lời đuúng: <span id="correctRate"></span></p>
+<p>Câu trả lời đúng: <span id="correctRate"></span></p>
 <button onclick="restartGame()"><i class="fa-solid fa-rotate-right"></i> Chơi lại</button>
 </div>
 
@@ -111,7 +111,7 @@ let currentKit=null;
 const upgrades=[
 {name:"Nhân đôi thu nhập", cost:20, effect:'double', duration:3, desc:"Nhân đôi thu nhập cho 3 câu hỏi", icon:'fa-solid fa-bolt'},
 {name:"X3 hoặc mất hết", cost:25, effect:'triple', duration:3, desc:"Đúng sẽ x3 sai thì trừ x3, 2 vòng", icon:'fa-solid fa-fire'},
-{name:"Tham gia thị trường làm thêm, 3 vòng", cost:30, effect:'market', duration:3, desc:"Thêm hoặc giảm thu nhập tuùy thị truờng", icon:'fa-solid fa-chart-line'},
+{name:"Tham gia thị trường làm thêm, 3 vòng", cost:30, effect:'market', duration:3, desc:"Thêm hoặc giảm thu nhập tuỳ thị trường", icon:'fa-solid fa-chart-line'},
 {name:"Phần thưởng thêm", cost:15, effect:'extra', duration:3, desc:"Thêm thu nhập bonus, 3 vòng", icon:'fa-solid fa-gift'},
 {name:"Nhân lên", cost:20, effect:'multiplier', duration:3, desc:"Tăng thu nhập lên 20%, 3 vòng", icon:'fa-solid fa-star'},
 {name:"Đầu tư", cost:25, effect:'invest', duration:3, desc:"Thử tài đầu tư dựa vào thị trường, 3 vòng", icon:'fa-solid fa-coins'},
@@ -126,8 +126,16 @@ function startAfterModal(){
     music.play().catch(e=>console.log("Autoplay prevented:", e));
 }
 
-// Ensure correct answers exist
-function fixKitQuestions(kit){ kit.questions.forEach(q=>{ if(q.correct===undefined || q.correct===null){ q.correct=0; } else { if(typeof q.correct==='string' && !q.choices.includes(q.correct)) q.correct=0; if(typeof q.correct==='number'&&(q.correct<0||q.correct>=q.choices.length)) q.correct=0; } }); }
+// Fix correct answer
+function fixKitQuestions(kit){ 
+    kit.questions.forEach(q=>{
+        if(q.correctIndex===undefined || q.correctIndex===null){ 
+            q.correctIndex = 0; 
+        } else if(q.correctIndex<0 || q.correctIndex>=q.choices.length){
+            q.correctIndex = 0;
+        }
+    }); 
+}
 
 // Join game
 function joinGame(){
@@ -136,7 +144,10 @@ function joinGame(){
     if(!code||!name){alert('Enter both!'); return;}
     let allKits=JSON.parse(localStorage.getItem('userKits_v5')||'{}');
     let kit=null;
-    for(let user in allKits){ kit=allKits[user].find(k=>k.assigned && k.assignedCode==code); if(kit) break; }
+    for(let user in allKits){ 
+        kit=allKits[user].find(k=>k.assigned && k.assignedCode==code); 
+        if(kit) break; 
+    }
     if(!kit){alert('Invalid kit code'); return;}
     fixKitQuestions(kit);
     player={name, code, money:0};
@@ -160,14 +171,14 @@ function generateQuestion(){
     let q=questions[questionNumber];
     const qa=document.getElementById('question-area');
     const grid=document.getElementById('answer-grid');
-    qa.textContent=`Question ${globalQuestionNumber+1} ($${globalQuestionNumber+1}) : ${q.question}`;
+    qa.textContent=`Question ${globalQuestionNumber+1} : ${q.question}`;
     grid.innerHTML='';
     q.choices.forEach((choice,i)=>{
         let card=document.createElement('div');
         card.className=`answer-card ${['blue','green','red','yellow'][i%4]}`;
         card.textContent=choice;
         card.onclick = ()=>{
-            let isCorrect=(typeof q.correct==='number')? i===q.correct : choice.trim()===q.correct.trim();
+            let isCorrect = (i === q.correctIndex); // FIXED
             checkAnswer(isCorrect, globalQuestionNumber+1);
         }
         grid.appendChild(card);
@@ -225,7 +236,12 @@ function buyUpgrade(i){
 }
 
 // Market
-function updateMarket(){ marketPrice+=Math.floor(Math.random()*3-1); if(marketPrice<1) marketPrice=1; document.getElementById('marketPrice').textContent=marketPrice; setTimeout(updateMarket,5000); }
+function updateMarket(){ 
+    marketPrice+=Math.floor(Math.random()*3-1); 
+    if(marketPrice<1) marketPrice=1; 
+    document.getElementById('marketPrice').textContent=marketPrice; 
+    setTimeout(updateMarket,5000); 
+}
 
 // End game
 function endGame(){
