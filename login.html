@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Ez10</title>
+<title>Đăng Nhập | thaococo</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
 body {
@@ -35,66 +35,16 @@ body::before {
   text-align: center;
   box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
-h2 {
-  color: #fff;
-  margin-bottom: 25px;
-  font-size: 28px;
-}
-.input-box {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  padding: 5px;
-}
-.input-box i {
-  color: #007bff;
-  font-size: 18px;
-  margin-left: 10px;
-}
-.input-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #fff;
-  font-size: 16px;
-  padding: 10px;
-}
-.input-box input::placeholder {
-  color: #ddd;
-}
-button {
-  width: 100%;
-  background: linear-gradient(135deg, #007bff, #00b4ff);
-  border: none;
-  color: white;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
-  transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(0,123,255,0.4);
-}
-button:hover {
-  transform: scale(1.05);
-  background: linear-gradient(135deg, #006ae6, #00a0e0);
-}
-.switch {
-  margin-top: 20px;
-  font-size: 15px;
-  color: #ddd;
-}
-.switch a {
-  color: #00b4ff;
-  text-decoration: none;
-  font-weight: 600;
-}
-.switch a:hover {
-  text-decoration: underline;
-}
+h2 { color: #fff; margin-bottom: 25px; font-size: 28px; }
+.input-box { display:flex; align-items:center; margin-bottom:20px; background: rgba(255,255,255,0.2); border-radius:10px; padding:5px; position:relative; }
+.input-box i { color: #007bff; font-size:18px; margin-left:10px; cursor:pointer;}
+.input-box input { flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:16px; padding:10px;}
+.input-box input::placeholder { color:#ddd; }
+button { width:100%; background: linear-gradient(135deg, #007bff, #00b4ff); border:none; color:white; padding:12px; border-radius:10px; cursor:pointer; font-weight:600; font-size:16px; transition:0.3s; margin-top:10px; }
+button:hover { transform:scale(1.05); background: linear-gradient(135deg,#006ae6,#00a0e0);}
+.switch { margin-top:20px; font-size:15px; color:#ddd;}
+.switch a { color:#00b4ff; text-decoration:none; font-weight:600;}
+.switch a:hover { text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -103,35 +53,71 @@ button:hover {
   <h2><i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập</h2>
   <div class="input-box">
     <i class="fa fa-user"></i>
-    <input type="text" id="username" placeholder="Tên Đăng Nhập" required>
+    <input type="email" id="email" placeholder="Email">
   </div>
   <div class="input-box">
     <i class="fa fa-lock"></i>
-    <input type="password" id="password" placeholder="Mật Khẩu" required>
+    <input type="password" id="password" placeholder="Mật Khẩu">
+    <i class="fa fa-eye" onclick="togglePassword('password', this)"></i>
   </div>
-  <button onclick="login()">Đăng Nhập</button>
-  <p class="switch">Chưa có tài khoản? <a href="index.html">Tạo tài khoản</a></p>
+  <button onclick="loginUser()">Đăng Nhập</button>
+  <button style="background:#db4437" onclick="loginWithGoogle()"><i class="fa-brands fa-google"></i> Đăng nhập Google</button>
+  <p class="switch">Chưa có tài khoản? <a href="signup.html">Tạo tài khoản</a></p>
 </div>
 
-<script>
-function login() {
-  const username = document.getElementById("username").value.trim();
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7vYlpSMcAlgwOPNBMyOhM0QIuzE-628",
+  authDomain: "thaococo-70cc7.firebaseapp.com",
+  projectId: "thaococo-70cc7",
+  storageBucket: "thaococo-70cc7.firebasestorage.app",
+  messagingSenderId: "289749987059",
+  appId: "1:289749987059:web:5ea067327247588cdc1186",
+  measurementId: "G-RLNVKEF7R4"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+if(auth.currentUser) window.location.href="main.html";
+
+function togglePassword(id, el){
+  const input = document.getElementById(id);
+  input.type = input.type==="password"?"text":"password";
+  el.classList.toggle("fa-eye-slash");
+}
+
+async function loginUser(){
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
+  if(!email || !password){ alert("Vui lòng nhập đầy đủ!"); return; }
 
-  if (!username || !password) {
-    alert("❌ Vui Lòng hoàn thành tất cả mục!");
-    return;
-  }
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth,email,password);
+    const user = userCredential.user;
+    alert(`✅ Chào mừng ${user.email}`);
+    window.location.href="main.html";
+  }catch(e){ alert("❌ Lỗi: "+e.message);}
+}
 
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  if (users[username] && users[username].password === password) {
-    localStorage.setItem("loggedInUser", username);
-    alert(`✅ chào mừng quay trở lại, ${username}!`);
-    window.location.href = "main.html";
-  } else {
-    alert("❌ Sai mật khẩu hoặc tài khoản!");
-  }
+async function loginWithGoogle(){
+  try{
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    await setDoc(doc(db,"users",user.uid),{
+      email:user.email,
+      displayName:user.displayName,
+      lastLogin:new Date()
+    }, {merge:true});
+    alert(`✅ Đăng nhập Google thành công, ${user.displayName}`);
+    window.location.href="main.html";
+  }catch(e){ alert("❌ Lỗi Google Sign-in: "+e.message);}
 }
 </script>
 
